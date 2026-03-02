@@ -43,10 +43,12 @@ app.use((err, req, res, next) => {
 });
 
 // ─── Start Server ─────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`\n🚀 Server berjalan di http://localhost:${PORT}`);
-  console.log(`📄 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🗄️  Database: ${process.env.DATABASE_URL ? 'Terhubung' : 'Belum dikonfigurasi!'}\n`);
-});
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`\n🚀 Server berjalan di http://localhost:${PORT}`);
+    console.log(`📄 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🗄️  Database: ${process.env.DATABASE_URL ? 'Terhubung' : 'Belum dikonfigurasi!'}\n`);
+  });
+}
 
 module.exports = app;
