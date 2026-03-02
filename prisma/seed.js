@@ -1,5 +1,5 @@
 // prisma/seed.js - Data awal untuk development
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config(); // Load .env dari direktori aktif (apps/backend)
 const { PrismaClient } = require('@prisma/client');
 const { PrismaPg } = require('@prisma/adapter-pg');
 const bcrypt = require('bcryptjs');
