@@ -8,6 +8,8 @@ const postController = require('../controllers/post.controller');
 const pageController = require('../controllers/page.controller');
 const categoryController = require('../controllers/category.controller');
 const mediaController = require('../controllers/media.controller');
+const settingsController = require('../controllers/settings.controller');
+const menuController = require('../controllers/menu.controller');
 
 const cmsAdmin = ['SUPER_ADMIN', 'ADMIN_CMS'];
 
@@ -39,5 +41,33 @@ router.delete('/categories/:id', authenticate, authorize(...cmsAdmin), categoryC
 router.get('/media', authenticate, authorize(...cmsAdmin), mediaController.getAll);
 router.post('/media', authenticate, authorize(...cmsAdmin), upload.array('files', 10), mediaController.upload);
 router.delete('/media/:id', authenticate, authorize(...cmsAdmin), mediaController.remove);
+
+// ─── SITE SETTINGS (Pengaturan Situs) ────────────────────────
+// Publik — frontend baca settings untuk render header/homepage
+router.get('/settings', settingsController.getAll);
+router.get('/settings/:key', settingsController.getOne);
+
+// Admin only — batch update, upload logo/favicon
+router.put('/settings', authenticate, authorize(...cmsAdmin), settingsController.updateMany);
+router.post('/settings/upload-logo',
+  authenticate, authorize(...cmsAdmin),
+  upload.single('logo'),
+  settingsController.uploadLogo
+);
+router.post('/settings/upload-favicon',
+  authenticate, authorize(...cmsAdmin),
+  upload.single('favicon'),
+  settingsController.uploadFavicon
+);
+
+// ─── MENU NAVIGASI ────────────────────────────────────────────
+// Publik — navbar publik membaca daftar menu aktif
+router.get('/menu', menuController.getAll);
+
+// Admin only
+router.post('/menu', authenticate, authorize(...cmsAdmin), menuController.create);
+router.put('/menu/reorder', authenticate, authorize(...cmsAdmin), menuController.reorder); // reorder HARUS sebelum /:id
+router.put('/menu/:id', authenticate, authorize(...cmsAdmin), menuController.update);
+router.delete('/menu/:id', authenticate, authorize(...cmsAdmin), menuController.remove);
 
 module.exports = router;

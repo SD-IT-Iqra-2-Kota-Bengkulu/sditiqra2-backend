@@ -293,3 +293,44 @@ model LeaveRequest {
 
   @@map("leave_requests")
 }
+
+// ============================================================
+// MODUL PENGATURAN SITUS (SITE SETTINGS)
+// ============================================================
+
+// Menyimpan konfigurasi global situs sebagai key-value.
+// Contoh key:
+//   site_name, site_tagline, site_logo, site_favicon
+//   contact_email, contact_phone, contact_address, contact_maps_embed
+//   hero_title, hero_subtitle, hero_cta_primary_text, hero_cta_primary_url
+//   hero_cta_secondary_text, hero_cta_secondary_url
+//   stats          → JSON: [{ icon, value, label }, ...]
+//   features       → JSON: [{ icon, title, desc }, ...]
+//   social_facebook, social_instagram, social_youtube
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text // Bisa berisi teks panjang atau JSON
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+// ============================================================
+// MODUL MENU NAVIGASI
+// ============================================================
+
+// Item menu navigasi publik (header dan/atau footer)
+model MenuItem {
+  id          String   @id @default(cuid())
+  label       String                      // Teks tampil: "Tentang Kami"
+  url         String                      // Path atau URL eksternal: "/tentang"
+  order       Int      @default(0)        // Urutan tampil (makin kecil makin depan)
+  isActive    Boolean  @default(true)     // Tampilkan atau sembunyikan
+  openInNewTab Boolean @default(false)    // Buka di tab baru (_blank)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("menu_items")
+}

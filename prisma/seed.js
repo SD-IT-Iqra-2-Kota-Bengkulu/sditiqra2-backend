@@ -142,6 +142,65 @@ async function main() {
   });
   console.log('✅ Contoh berita dibuat.');
 
+  // ─── Site Settings (Pengaturan Situs) ─────────────────────
+  const defaultSettings = [
+    { key: 'site_name', value: 'SD Islam Terpadu Iqra 2' },
+    { key: 'site_tagline', value: 'Mewujudkan Generasi Islami Cerdas dan Berakhlak Mulia' },
+    { key: 'site_logo', value: '' },
+    { key: 'site_favicon', value: '' },
+    { key: 'contact_email', value: 'info@sditiqra2kotabengkulu.sch.id' },
+    { key: 'contact_phone', value: '(0736) 123456' },
+    { key: 'contact_address', value: 'Jl. Contoh No. 1, Kota Bengkulu, Bengkulu 38000' },
+    { key: 'contact_maps_embed', value: '' },
+    { key: 'social_facebook', value: '' },
+    { key: 'social_instagram', value: '' },
+    { key: 'social_youtube', value: '' },
+    { key: 'hero_title', value: 'SD Islam Terpadu Iqra 2 Kota Bengkulu' },
+    { key: 'hero_subtitle', value: 'Mewujudkan generasi Islami yang cerdas, berakhlak mulia, dan berprestasi dalam lingkungan pendidikan yang kondusif dan Islami.' },
+    { key: 'hero_cta_primary_text', value: 'Daftar Sekarang' },
+    { key: 'hero_cta_primary_url', value: '/ppdb' },
+    { key: 'hero_cta_secondary_text', value: 'Lihat Berita' },
+    { key: 'hero_cta_secondary_url', value: '/berita' },
+    { key: 'stats', value: JSON.stringify([
+      { icon: 'school', value: '600+', label: 'Siswa Aktif' },
+      { icon: 'person', value: '40+', label: 'Tenaga Pendidik' },
+      { icon: 'emoji_events', value: '25+', label: 'Prestasi' },
+      { icon: 'menu_book', value: '15+', label: 'Tahun Berpengalaman' },
+    ]) },
+    { key: 'features', value: JSON.stringify([
+      { icon: 'mosque', title: 'Pendidikan Islami', desc: 'Kurikulum terintegrasi nilai-nilai Islam dalam setiap mata pelajaran.' },
+      { icon: 'science', title: 'Akademik Unggul', desc: 'Standar akademik tinggi dengan metode pembelajaran inovatif dan menyenangkan.' },
+      { icon: 'sports_soccer', title: 'Ekstrakurikuler', desc: 'Berbagai kegiatan untuk mengembangkan bakat dan minat siswa.' },
+      { icon: 'family_restroom', title: 'Lingkungan Kondusif', desc: 'Lingkungan belajar yang aman, nyaman, dan mendukung tumbuh kembang anak.' },
+    ]) },
+  ];
+
+  for (const setting of defaultSettings) {
+    await prisma.siteSetting.upsert({
+      where: { key: setting.key },
+      update: {},
+      create: setting,
+    });
+  }
+  console.log('✅ Site settings default dibuat.');
+
+  // ─── Menu Navigasi ────────────────────────────────────────
+  const defaultMenuItems = [
+    { label: 'Beranda', url: '/', order: 0 },
+    { label: 'Tentang', url: '/halaman/tentang-kami', order: 1 },
+    { label: 'Berita', url: '/berita', order: 2 },
+    { label: 'PPDB', url: '/ppdb', order: 3 },
+    { label: 'Kontak', url: '/halaman/kontak', order: 4 },
+  ];
+
+  for (const item of defaultMenuItems) {
+    const existing = await prisma.menuItem.findFirst({ where: { label: item.label } });
+    if (!existing) {
+      await prisma.menuItem.create({ data: item });
+    }
+  }
+  console.log('✅ Menu navigasi default dibuat.');
+
   console.log('\n🎉 Seeding selesai!');
   console.log('─────────────────────────────────');
   console.log('Login Admin:');
@@ -153,3 +212,4 @@ async function main() {
 main()
   .catch((e) => { console.error(e); process.exit(1); })
   .finally(() => prisma.$disconnect());
+
