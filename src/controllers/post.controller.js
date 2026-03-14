@@ -45,18 +45,33 @@ exports.getAll = async (req, res) => {
 };
 
 /**
- * GET /api/cms/posts/:slug
+ * GET /api/cms/posts/:slugOrId
+ * Supports both slug and ID lookup
  */
 exports.getBySlug = async (req, res) => {
   try {
     const isAdmin = req.user && ['SUPER_ADMIN', 'ADMIN_CMS'].includes(req.user.role);
-    const post = await prisma.post.findUnique({
-      where: { slug: req.params.slug },
+    const { slug } = req.params;
+    
+    // Try to find by slug first, then by ID
+    let post = await prisma.post.findUnique({
+      where: { slug },
       include: {
         author: { select: { id: true, name: true } },
         category: { select: { id: true, name: true, slug: true } },
       },
     });
+    
+    // If not found by slug, try by ID (for admin edit pages)
+    if (!post) {
+      post = await prisma.post.findUnique({
+        where: { id: slug },
+        include: {
+          author: { select: { id: true, name: true } },
+          category: { select: { id: true, name: true, slug: true } },
+        },
+      });
+    }
 
     if (!post) return errorResponse(res, 'Berita tidak ditemukan.', 404);
     if (!isAdmin && post.status !== 'PUBLISHED') return errorResponse(res, 'Berita tidak ditemukan.', 404);

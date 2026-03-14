@@ -21,15 +21,27 @@ exports.getAll = async (req, res) => {
 };
 
 /**
- * GET /api/cms/pages/:slug
+ * GET /api/cms/pages/:slugOrId
+ * Supports both slug and ID lookup
  */
 exports.getBySlug = async (req, res) => {
   try {
     const isAdmin = req.user && ['SUPER_ADMIN', 'ADMIN_CMS'].includes(req.user.role);
-    const page = await prisma.page.findUnique({
-      where: { slug: req.params.slug },
+    const { slug } = req.params;
+    
+    // Try to find by slug first, then by ID
+    let page = await prisma.page.findUnique({
+      where: { slug },
       include: { author: { select: { id: true, name: true } } },
     });
+    
+    // If not found by slug, try by ID (for admin edit pages)
+    if (!page) {
+      page = await prisma.page.findUnique({
+        where: { id: slug },
+        include: { author: { select: { id: true, name: true } } },
+      });
+    }
 
     if (!page) return errorResponse(res, 'Halaman tidak ditemukan.', 404);
     if (!isAdmin && page.status !== 'PUBLISHED') return errorResponse(res, 'Halaman tidak ditemukan.', 404);
